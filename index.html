@@ -15,6 +15,7 @@
         img { max-width: 150px; border-radius: 10px; margin: 10px 0; }
         .price-tag { color: #ff4757; font-weight: bold; }
         .free-tag { color: #28a745; font-weight: bold; }
+        #productDescription { font-size: 14px; color: #ccc; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -28,6 +29,7 @@
     <div id="resultArea">
         <h3 id="productName"></h3>
         <img id="productImage" src="" alt="Product">
+        <p id="productDescription"></p> <!-- Yahan description dikhega -->
         <div class="price-tag" id="productPrice"></div>
         <div class="free-tag">But it's free for you!</div>
         <button onclick="showAddressForm()">Get the Gift Now</button>
@@ -50,18 +52,26 @@
 
     function checkCode() {
         currentCode = document.getElementById("codeInput").value;
+        if(!currentCode) return alert("Please enter a code");
+
         db.ref('GiftCodes/' + currentCode).once('value').then(s => {
             if (s.exists() && !s.val().isUsed) {
                 let d = s.val();
                 document.getElementById("productName").innerText = d.productName;
                 document.getElementById("productImage").src = d.imageURL;
+                // Description display karne ka code
+                document.getElementById("productDescription").innerText = d.productDescription || "No description available";
                 document.getElementById("productPrice").innerText = "Price: " + d.price;
                 document.getElementById("resultArea").style.display = "block";
-            } else { alert("Invalid or already used code!"); }
+            } else { 
+                alert("Invalid or already used code!"); 
+            }
         });
     }
 
-    function showAddressForm() { document.getElementById("addressArea").style.display = "block"; }
+    function showAddressForm() { 
+        document.getElementById("addressArea").style.display = "block"; 
+    }
 
     function confirmOrder() {
         let email = document.getElementById("usermail").value;
