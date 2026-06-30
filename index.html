@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gift Redemption App</title>
+    <title>SSS Gift Portal</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
@@ -14,24 +14,20 @@
         #resultArea, #addressArea { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
         img { max-width: 150px; border-radius: 10px; margin: 10px 0; }
         .price-tag { color: #ff4757; font-weight: bold; }
-        .free-tag { color: #28a745; font-weight: bold; }
-        #productDescription { font-size: 16px; color: #fff; margin: 10px 0; padding: 0 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2 style="color: #28a745;">SSS Gift Portal</h2>
-    
-    <input type="text" id="codeInput" placeholder="Enter Gift Code" style="width: 70%;">
-    <button onclick="checkCode()" style="width: 70%; padding: 8px;">Check Code</button>
+    <input type="text" id="codeInput" placeholder="Enter Gift Code">
+    <button id="checkBtn" onclick="checkCode()">Check Code</button>
 
     <div id="resultArea">
         <h3 id="productName"></h3>
         <img id="productImage" src="" alt="Product">
         <p id="productDescription"></p> 
         <div class="price-tag" id="productPrice"></div>
-        <div class="free-tag">But it's free for you!</div>
         <button onclick="showAddressForm()">Get the Gift Now</button>
     </div>
 
@@ -40,7 +36,7 @@
         <input type="text" id="userPin" placeholder="Pin Code">
         <input type="text" id="userPhone" placeholder="Mobile Number">
         <input type="email" id="usermail" placeholder="Gmail Address">
-        <button onclick="confirmOrder()">Deliver</button>
+        <button id="confirmBtn" onclick="confirmOrder()">Deliver</button>
     </div>
 </div>
 
@@ -52,26 +48,24 @@
 
     function checkCode() {
         currentCode = document.getElementById("codeInput").value;
+        const btn = document.getElementById("checkBtn");
         if(!currentCode) return alert("Please enter a code");
-
+        
+        btn.innerText = "Checking...";
         db.ref('GiftCodes/' + currentCode).once('value').then(s => {
+            btn.innerText = "Check Code";
             if (s.exists() && !s.val().isUsed) {
                 let d = s.val();
                 document.getElementById("productName").innerText = d.productName;
                 document.getElementById("productImage").src = d.imageURL;
-                // Yahan aapke database ke 'description' field ko target kiya gaya hai
-                document.getElementById("productDescription").innerText = d.description || "No description available";
-                document.getElementById("productPrice").innerText = "Price: " + d.price;
+                document.getElementById("productDescription").innerText = d.description;
+                document.getElementById("productPrice").innerText = "Value: " + d.price;
                 document.getElementById("resultArea").style.display = "block";
-            } else { 
-                alert("Invalid or already used code!"); 
-            }
+            } else { alert("Invalid or already used code!"); }
         });
     }
 
-    function showAddressForm() { 
-        document.getElementById("addressArea").style.display = "block"; 
-    }
+    function showAddressForm() { document.getElementById("addressArea").style.display = "block"; }
 
     function confirmOrder() {
         let email = document.getElementById("usermail").value;
@@ -79,22 +73,19 @@
         let pin = document.getElementById("userPin").value;
         let phone = document.getElementById("userPhone").value;
 
-        if (!email || !address || !pin || !phone) { 
-            alert("Please fill all details!"); 
-            return; 
-        }
+        if (!email || !address || !pin || !phone) return alert("Please fill all details!");
 
-        let fullAddress = address + ", Pin: " + pin + ", Ph: " + phone;
-
-        db.ref('GiftCodes/' + currentCode).update({ isUsed: true });
+        // Order save karte waqt status "PendingConfirmation" rakha hai
         db.ref('Orders/').push({ 
             code: currentCode, 
-            address: fullAddress, 
+            address: address + ", " + pin, 
+            phone: phone,
             email: email, 
-            status: "Pending" 
+            status: "PendingConfirmation",
+            timestamp: firebase.database.ServerValue.TIMESTAMP
         });
         
-        alert("Success! Your product is booked. We will send a confirmation to your email.");
+        alert("Success! We have sent a confirmation request to your email. Please check and reply to confirm.");
         location.reload();
     }
 </script>
