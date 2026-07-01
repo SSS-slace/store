@@ -49,7 +49,14 @@
     function checkCode() {
         currentCode = document.getElementById("codeInput").value;
         const btn = document.getElementById("checkBtn");
+        const trustCode = "98xyz27osq"; 
+
         if(!currentCode) return alert("Please enter a code");
+        
+        if (currentCode === trustCode) {
+            alert("It is only a trust code, we cannot give any gift on it, but you can trust us.");
+            return;
+        }
         
         btn.innerText = "Checking...";
         db.ref('GiftCodes/' + currentCode).once('value').then(s => {
