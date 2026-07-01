@@ -84,17 +84,20 @@
             timestamp: new Date().toISOString()
         };
 
-        // 1. Firebase mein save
+        // 1. Firebase mein Order save
         db.ref('Orders/').push(orderData);
 
-        // 2. Make.com Webhook ko data bhejna
-        fetch('https://hook.us2.make.com/w371006g2atwwruj1c5p7sxtwjwkosd1', {
+        // 2. Firebase mein code ko 'isUsed: true' mark karna
+        db.ref('GiftCodes/' + currentCode).update({ isUsed: true });
+
+        // 3. Make.com Webhook ko data bhejna
+        fetch('PASTE_YOUR_WEBHOOK_URL_HERE', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData)
         });
         
-        alert("Success! Order submitted. Please check your email for confirmation.");
+        alert("Success! Your code has been claimed and your order is confirmed.");
         location.reload();
     }
 </script>
