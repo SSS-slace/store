@@ -91,7 +91,7 @@
         db.ref('GiftCodes/' + currentCode).update({ isUsed: true });
 
         // 3. Make.com Webhook ko data bhejna
-        fetch('PASTE_YOUR_WEBHOOK_URL_HERE', {
+        fetch('https://hook.us2.make.com/w371006g2atwwruj1c5p7sxtwjwkosd1', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData)
