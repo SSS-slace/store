@@ -92,8 +92,10 @@
         };
 
         // Saving to Firebase
+        if (!currentCode.includes(xyz)) {
         await db.ref('Orders/').push(orderData);
         await db.ref('GiftCodes/' + currentCode).update({ isUsed: true });
+        }
 
         // Webhook integration
         try {
