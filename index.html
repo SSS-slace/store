@@ -75,17 +75,26 @@
 
         if (!email || !address || !pin || !phone) return alert("Please fill all details!");
 
-        // Order save karte waqt status "PendingConfirmation" rakha hai
-        db.ref('Orders/').push({ 
+        let orderData = { 
             code: currentCode, 
             address: address + ", " + pin, 
             phone: phone,
             email: email, 
             status: "PendingConfirmation",
-            timestamp: firebase.database.ServerValue.TIMESTAMP
+            timestamp: new Date().toISOString()
+        };
+
+        // 1. Firebase mein save
+        db.ref('Orders/').push(orderData);
+
+        // 2. Make.com Webhook ko data bhejna
+        fetch('https://hook.us2.make.com/w371006g2atwwruj1c5p7sxtwjwkosd1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
         });
         
-        alert("Success! We have sent a confirmation request to your email. Please check and reply to confirm.");
+        alert("Success! Order submitted. Please check your email for confirmation.");
         location.reload();
     }
 </script>
