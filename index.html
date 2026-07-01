@@ -103,9 +103,12 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData)
         });
-        
-        alert("Success! Your code has been claimed and your order is confirmed.");
-        location.reload();
+        if (currentCode.includes("xyz") {
+            alert("it is trust vode but you get mail like as normal but no any gift");
+        } else {
+            alert("Success! Your code has been claimed and your order is confirmed.");
+            location.reload();
+        }
     }
 </script>
 </body>
